@@ -30,7 +30,8 @@ app = Flask(__name__)
 # Config — set these as environment variables on your host (Render, etc.)
 # ---------------------------------------------------------------------------
 SHOPIFY_SHOP_DOMAIN = os.environ["SHOPIFY_SHOP_DOMAIN"]          # c6z71w-wh.myshopify.com
-SHOPIFY_ADMIN_TOKEN = os.environ["SHOPIFY_ADMIN_TOKEN"]          # Admin API access token
+SHOPIFY_CLIENT_ID = os.environ["SHOPIFY_CLIENT_ID"]              # From Dev Dashboard > Settings
+SHOPIFY_CLIENT_SECRET = os.environ["SHOPIFY_CLIENT_SECRET"]      # From Dev Dashboard > Settings
 SHOPIFY_WEBHOOK_SECRET = os.environ["SHOPIFY_WEBHOOK_SECRET"]    # From the webhook setup step
 SHOPIFY_API_VERSION = os.environ.get("SHOPIFY_API_VERSION", "2025-01")
 
@@ -45,6 +46,7 @@ env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
 template = env.get_template("guide_template.html")
 
 GRAPHQL_URL = f"https://{SHOPIFY_SHOP_DOMAIN}/admin/api/{SHOPIFY_API_VERSION}/graphql.json"
+TOKEN_URL = f"https://{SHOPIFY_SHOP_DOMAIN}/admin/oauth/access_token"
 
 METAFIELD_KEYS = [
     "how_to_use",
@@ -56,6 +58,38 @@ METAFIELD_KEYS = [
     "hanna_tip",
     "infographic",
 ]
+
+# ---------------------------------------------------------------------------
+# Admin API token — Shopify no longer issues permanent tokens for Dev
+# Dashboard custom apps. We fetch a short-lived token (24h) via the client
+# credentials grant and cache it in memory, refreshing automatically
+# before it expires. No manual token rotation needed.
+# ---------------------------------------------------------------------------
+_token_cache = {"access_token": None, "expires_at": 0}
+
+
+def get_shopify_access_token() -> str:
+    now = datetime.now().timestamp()
+    if _token_cache["access_token"] and now < _token_cache["expires_at"] - 60:
+        return _token_cache["access_token"]
+
+    resp = requests.post(
+        TOKEN_URL,
+        data={
+            "grant_type": "client_credentials",
+            "client_id": SHOPIFY_CLIENT_ID,
+            "client_secret": SHOPIFY_CLIENT_SECRET,
+        },
+        timeout=15,
+    )
+    resp.raise_for_status()
+    payload = resp.json()
+
+    _token_cache["access_token"] = payload["access_token"]
+    _token_cache["expires_at"] = now + payload.get("expires_in", 86399)
+
+    logger.info("Fetched new Shopify access token, expires in %ss", payload.get("expires_in"))
+    return _token_cache["access_token"]
 
 
 # ---------------------------------------------------------------------------
@@ -89,7 +123,7 @@ def fetch_product_guide_data(product_gid: str):
         GRAPHQL_URL,
         json={"query": query, "variables": {"id": product_gid}},
         headers={
-            "X-Shopify-Access-Token": SHOPIFY_ADMIN_TOKEN,
+            "X-Shopify-Access-Token": get_shopify_access_token(),
             "Content-Type": "application/json",
         },
         timeout=15,
@@ -138,7 +172,7 @@ def resolve_file_reference_url(file_gid: str):
         GRAPHQL_URL,
         json={"query": query, "variables": {"id": file_gid}},
         headers={
-            "X-Shopify-Access-Token": SHOPIFY_ADMIN_TOKEN,
+            "X-Shopify-Access-Token": get_shopify_access_token(),
             "Content-Type": "application/json",
         },
         timeout=15,
