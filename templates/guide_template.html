@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #3a2c2c;
+    background: #fdf6f3;
+  }
+
+  /* ---------- COVER ---------- */
+  .cover {
+    height: 297mm;
+    background-image: url('sakura.svg'), linear-gradient(160deg, #f7c9d4 0%, #fbe3e8 45%, #fdf6f3 100%);
+    background-repeat: repeat, no-repeat;
+    background-size: 240px 240px, cover;
+    padding: 30mm 18mm 18mm 18mm;
+    page-break-after: always;
+    position: relative;
+  }
+  .cover .eyebrow {
+    font-size: 11pt; letter-spacing: 3px; text-transform: uppercase;
+    color: #b5495b; font-weight: 600;
+  }
+  .cover h1 {
+    font-size: 30pt; margin: 6mm 0 4mm 0; color: #7a2e3d;
+    font-weight: 800; line-height: 1.15;
+  }
+  .cover .sub {
+    font-size: 12pt; color: #6b4a4f; max-width: 120mm; line-height: 1.6;
+  }
+  .cover .note-card {
+    margin-top: 10mm; background: #ffffff; border-radius: 6mm;
+    padding: 9mm 11mm; max-width: 140mm; box-shadow: 0 2mm 6mm rgba(122,46,61,0.08);
+  }
+  .cover .note-card .signature-label {
+    font-size: 8.5pt; text-transform: uppercase; letter-spacing: 1.5px;
+    color: #d67d8e; font-weight: 700; margin-bottom: 2mm;
+  }
+  .cover .note-card p { font-size: 10.5pt; line-height: 1.7; color: #4a3a3a; margin: 0; }
+  .cover .note-card .sign-off {
+    margin-top: 4mm; font-style: italic; font-size: 12pt; color: #7a2e3d; font-weight: 700;
+  }
+  .cover .order-box {
+    margin-top: 8mm; background: rgba(255,255,255,0.65); border-radius: 6mm;
+    padding: 6mm 10mm; max-width: 140mm;
+  }
+  .cover .order-box .label {
+    font-size: 9pt; text-transform: uppercase; letter-spacing: 1.5px;
+    color: #b5495b; font-weight: 700;
+  }
+  .cover .order-box p { font-size: 10pt; line-height: 1.6; margin: 2mm 0 0 0; color: #4a3a3a; }
+  .cover .facedna-cta {
+    margin-top: 6mm; background: #7a2e3d; border-radius: 6mm; padding: 6mm 10mm; max-width: 140mm;
+  }
+  .cover .facedna-label {
+    font-size: 9pt; text-transform: uppercase; letter-spacing: 1px;
+    color: #f7c9d4; font-weight: 700; margin-bottom: 2mm;
+  }
+  .cover .facedna-text { font-size: 10pt; line-height: 1.6; color: #ffffff; }
+  .cover .facedna-btn {
+    display: inline-block; margin-top: 4mm; background: #ffffff; color: #7a2e3d;
+    font-size: 9.5pt; font-weight: 700; padding: 3mm 7mm; border-radius: 20mm;
+  }
+  .cover .brandmark {
+    position: absolute; bottom: 18mm; left: 18mm; font-size: 10pt; color: #a6767f; letter-spacing: 1px;
+  }
+  .cover .brandmark strong { color: #7a2e3d; }
+
+  /* ---------- PRODUCT CARD PAGE ---------- */
+  .product-page {
+    padding: 12mm 16mm 10mm 16mm;
+    page-break-after: always;
+    background-image: url('sakura.svg');
+    background-repeat: repeat;
+    background-size: 240px 240px;
+  }
+  .product-card { border: 1px solid #f0d3d8; border-radius: 6mm; overflow: hidden; background: #ffffff; }
+  .product-header {
+    display: flex; background: #fbe3e8; padding: 6mm 10mm; align-items: center; gap: 8mm;
+    page-break-inside: avoid; page-break-after: avoid;
+  }
+  .product-header img {
+    width: 32mm; height: 32mm; object-fit: contain; background: #ffffff; border-radius: 3mm; padding: 2mm;
+  }
+  .product-thumb {
+    width: 32mm; height: 32mm; background: #ffffff; border-radius: 3mm;
+    display: flex; align-items: center; justify-content: center; font-size: 20pt; flex-shrink: 0;
+  }
+  .product-header .info h2 { font-size: 16pt; margin: 0 0 2mm 0; color: #7a2e3d; font-weight: 800; line-height: 1.25; }
+  .product-header .info .vendor { font-size: 9.5pt; color: #b5495b; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+  .section { padding: 6mm 10mm; border-top: 1px solid #f5e5e8; page-break-inside: avoid; }
+  .section .tag {
+    display: inline-block; font-size: 8.5pt; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: #ffffff; background: #d67d8e; border-radius: 3mm; padding: 1.5mm 4mm; margin-bottom: 3mm;
+  }
+  .section.caution .tag { background: #c25a4e; }
+  .section.ingredients .tag { background: #a98a5b; }
+  .section.delivery .tag { background: #7d9d8a; }
+  .section.guarantee .tag { background: #6b8fb5; }
+  .section.hanna-tip { background: #fdf1e7; }
+  .section.hanna-tip .tag { background: #e0a458; }
+  .section.hanna-tip p { font-style: italic; }
+
+  .section p, .section li { font-size: 10.5pt; line-height: 1.65; margin: 0; color: #4a3a3a; }
+  .section ol, .section ul { margin: 2mm 0 0 0; padding-left: 5mm; }
+  .section li { margin-bottom: 2mm; }
+
+  .infographic-slot { padding: 4mm 10mm 4mm 10mm; text-align: center; page-break-inside: avoid; }
+  .infographic-label { font-size: 8.5pt; text-transform: uppercase; letter-spacing: 1px; color: #a6767f; font-weight: 700; margin-bottom: 3mm; text-align: left; }
+  .infographic-img { max-width: 100%; max-height: 180mm; width: auto; display: inline-block; border-radius: 4mm; }
+
+  .footer-cta { margin-top: 6mm; text-align: center; }
+  .footer-cta .whatsapp {
+    display: inline-block; background: #7a2e3d; color: #ffffff; font-size: 10.5pt;
+    font-weight: 700; padding: 4mm 10mm; border-radius: 20mm;
+  }
+  .footer-cta .note { font-size: 9pt; color: #a6767f; margin-top: 5mm; }
+  .page-label { font-size: 8pt; color: #c9a7ac; text-align: right; margin-bottom: 4mm; letter-spacing: 1px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+  <!-- COVER PAGE -->
+  <div class="cover">
+    <div class="eyebrow">Hanna From Japan</div>
+    <h1>Oiii, {{ customer_first_name }}! 🌸<br>Chegou seu guia!</h1>
+    <div class="sub">
+      Gente, que alegria ter você por aqui! Preparei esse guia com todo carinho
+      pros produtos que você escolheu — passo a passo bem fácil, os cuidados
+      que você precisa saber e os ingredientes que fazem cada um ser especial.
+      Bora aproveitar juntas? 💕
+    </div>
+    <div class="note-card">
+      <div class="signature-label">Um recadinho da Hanna</div>
+      <p>
+        Ai, fico tão feliz quando alguém confia em mim pra escolher um
+        pedacinho do Japão! Separei cada produto do seu pedido pensando em
+        você, e esse guia é praticamente eu do seu lado te ensinando a usar
+        tudo certinho, do jeitinho que a gente faz por aqui. Bora?
+      </p>
+      <div class="sign-off">Beijo grande, Hanna 🌸</div>
+    </div>
+    <div class="order-box">
+      <div class="label">Pedido #{{ order_number }}</div>
+      <p>
+        {{ product_count }} {{ "item" if product_count == 1 else "itens" }} incluído{{ "" if product_count == 1 else "s" }} neste guia<br>
+        Enviado para: {{ customer_email }}<br>
+        Data: {{ order_date }}
+      </p>
+    </div>
+    <div class="facedna-cta">
+      <div class="facedna-label">Ainda não descobriu sua rotina ideal?</div>
+      <div class="facedna-text">Faz o quiz FaceDNA em 3 minutinhos e eu te mostro exatamente quais produtos combinam com sua pele! ✨</div>
+      <div class="facedna-btn">Fazer meu FaceDNA →</div>
+    </div>
+    <div class="brandmark"><strong>Hanna From Japan</strong> — direto de Tóquio para você</div>
+  </div>
+
+  <!-- PRODUCT PAGES (one loop per purchased item) -->
+  {% for p in products %}
+  <div class="product-page">
+    <div class="page-label">Produto {{ loop.index }} de {{ product_count }}</div>
+    <div class="product-card">
+      <div class="product-header">
+        {% if p.image_url %}
+        <img src="{{ p.image_url }}" alt="{{ p.title }}">
+        {% else %}
+        <div class="product-thumb">🎁</div>
+        {% endif %}
+        <div class="info">
+          {% if p.vendor %}<div class="vendor">{{ p.vendor }}</div>{% endif %}
+          <h2>{{ p.title }}</h2>
+        </div>
+      </div>
+
+      {% if p.how_to_use %}
+      <div class="section howto">
+        <span class="tag">Como usar</span>
+        <p style="white-space: pre-line;">{{ p.how_to_use }}</p>
+      </div>
+      {% endif %}
+
+      {% if p.cautions %}
+      <div class="section caution">
+        <span class="tag">Cuidados</span>
+        <p style="white-space: pre-line;">{{ p.cautions }}</p>
+      </div>
+      {% endif %}
+
+      {% if p.ingredients_summary %}
+      <div class="section ingredients">
+        <span class="tag">Ingredientes principais</span>
+        <p style="white-space: pre-line;">{{ p.ingredients_summary }}</p>
+      </div>
+      {% endif %}
+
+      {% if p.product_info %}
+      <div class="section ingredients">
+        <span class="tag">Sobre o produto</span>
+        <p style="white-space: pre-line;">{{ p.product_info }}</p>
+      </div>
+      {% endif %}
+
+      {% if p.guarantee %}
+      <div class="section guarantee">
+        <span class="tag">Garantia</span>
+        <p style="white-space: pre-line;">{{ p.guarantee }}</p>
+      </div>
+      {% endif %}
+
+      {% if p.estimated_delivery %}
+      <div class="section delivery">
+        <span class="tag">Prazo de entrega</span>
+        <p>{{ p.estimated_delivery }}</p>
+      </div>
+      {% endif %}
+
+      {% if p.hanna_tip %}
+      <div class="section hanna-tip">
+        <span class="tag">Dica da Hanna</span>
+        <p>{{ p.hanna_tip }}</p>
+      </div>
+      {% endif %}
+
+      {% if p.infographic_url %}
+      <div class="infographic-slot">
+        <div class="infographic-label">Infográfico completo</div>
+        <img src="{{ p.infographic_url }}" alt="Infográfico do produto" class="infographic-img">
+      </div>
+      {% endif %}
+    </div>
+
+    {% if loop.last %}
+    <div class="footer-cta">
+      <div class="whatsapp">💬 Manda um oi pra mim no WhatsApp</div>
+      <div class="note">Ficou com alguma dúvida ou usou e amou? Conta pra mim, quero saber! — hannafromjapan.com</div>
+      <div class="note" style="margin-top:3mm;">Psst... já fez seu FaceDNA? Descubra sua rotina ideal em hannafromjapan.com/facedna 🌸</div>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+</body>
+</html>
