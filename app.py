@@ -33,7 +33,7 @@ SHOPIFY_SHOP_DOMAIN = os.environ["SHOPIFY_SHOP_DOMAIN"]          # c6z71w-wh.mys
 SHOPIFY_CLIENT_ID = os.environ["SHOPIFY_CLIENT_ID"]              # From Dev Dashboard > Settings
 SHOPIFY_CLIENT_SECRET = os.environ["SHOPIFY_CLIENT_SECRET"]      # From Dev Dashboard > Settings
 SHOPIFY_WEBHOOK_SECRET = os.environ["SHOPIFY_WEBHOOK_SECRET"]    # From the webhook setup step
-SHOPIFY_API_VERSION = os.environ.get("SHOPIFY_API_VERSION", "2025-01")
+SHOPIFY_API_VERSION = os.environ.get("SHOPIFY_API_VERSION", "2026-04")
 
 RESEND_API_KEY = os.environ["RESEND_API_KEY"]                    # or swap for SendGrid, etc.
 FROM_EMAIL = os.environ.get("FROM_EMAIL", "hanna@hannafromjapan.com")
@@ -82,6 +82,14 @@ def get_shopify_access_token() -> str:
         },
         timeout=15,
     )
+    if not resp.ok:
+        logger.error(
+            "Shopify token request failed (%s): %s | client_id=%s shop=%s",
+            resp.status_code,
+            resp.text,
+            SHOPIFY_CLIENT_ID,
+            SHOPIFY_SHOP_DOMAIN,
+        )
     resp.raise_for_status()
     payload = resp.json()
 
