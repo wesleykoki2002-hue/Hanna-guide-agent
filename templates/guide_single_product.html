@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #3a2c2c;
+    background: #fdf6f3;
+  }
+
+  .page {
+    padding: 10mm 16mm 10mm 16mm;
+    background-image: url('sakura.svg');
+    background-repeat: repeat;
+    background-size: 240px 240px;
+  }
+
+  /* ---------- CONDENSED PERSONAL HEADER ---------- */
+  .mini-hero {
+    background: linear-gradient(135deg, #f7c9d4 0%, #fbe3e8 100%);
+    border-radius: 6mm;
+    padding: 6mm 8mm;
+    margin-bottom: 6mm;
+  }
+  .mini-hero .eyebrow {
+    font-size: 8.5pt; letter-spacing: 2px; text-transform: uppercase;
+    color: #b5495b; font-weight: 700; margin-bottom: 1.5mm;
+  }
+  .mini-hero h1 {
+    font-size: 15pt; margin: 0 0 2mm 0; color: #7a2e3d; font-weight: 800; line-height: 1.25;
+  }
+  .mini-hero p {
+    font-size: 9pt; line-height: 1.55; color: #5a3f45; margin: 0;
+  }
+  .mini-hero .order-line {
+    font-size: 8pt; color: #a6767f; margin-top: 3mm;
+  }
+
+  /* ---------- PRODUCT CARD ---------- */
+  .product-card { border: 1px solid #f0d3d8; border-radius: 6mm; overflow: hidden; background: #ffffff; }
+  .product-header {
+    display: flex; background: #fbe3e8; padding: 6mm 10mm; align-items: center; gap: 8mm;
+    page-break-inside: avoid; page-break-after: avoid;
+  }
+  .product-header img {
+    width: 32mm; height: 32mm; object-fit: contain; background: #ffffff; border-radius: 3mm; padding: 2mm;
+  }
+  .product-thumb {
+    width: 32mm; height: 32mm; background: #ffffff; border-radius: 3mm;
+    display: flex; align-items: center; justify-content: center; font-size: 20pt; flex-shrink: 0;
+  }
+  .product-header .info h2 { font-size: 16pt; margin: 0 0 2mm 0; color: #7a2e3d; font-weight: 800; line-height: 1.25; }
+  .product-header .info .vendor { font-size: 9.5pt; color: #b5495b; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+  .section { padding: 6mm 10mm; border-top: 1px solid #f5e5e8; page-break-inside: avoid; }
+  .section .tag {
+    display: inline-block; font-size: 8.5pt; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: #ffffff; background: #d67d8e; border-radius: 3mm; padding: 1.5mm 4mm; margin-bottom: 3mm;
+  }
+  .section.caution .tag { background: #c25a4e; }
+  .section.ingredients .tag { background: #a98a5b; }
+  .section.delivery .tag { background: #7d9d8a; }
+  .section.guarantee .tag { background: #6b8fb5; }
+  .section.hanna-tip { background: #fdf1e7; }
+  .section.hanna-tip .tag { background: #e0a458; }
+  .section.hanna-tip p { font-style: italic; }
+
+  .section p, .section li { font-size: 10.5pt; line-height: 1.65; margin: 0; color: #4a3a3a; }
+  .section ol, .section ul { margin: 2mm 0 0 0; padding-left: 5mm; }
+  .section li { margin-bottom: 2mm; }
+
+  .infographic-slot { padding: 4mm 10mm 4mm 10mm; text-align: center; page-break-inside: avoid; }
+  .infographic-label { font-size: 8.5pt; text-transform: uppercase; letter-spacing: 1px; color: #a6767f; font-weight: 700; margin-bottom: 3mm; text-align: left; }
+  .infographic-img { max-width: 100%; max-height: 180mm; width: auto; display: inline-block; border-radius: 4mm; }
+
+  .footer-cta { margin-top: 6mm; text-align: center; }
+  .footer-cta .whatsapp {
+    display: inline-block; background: #7a2e3d; color: #ffffff; font-size: 10.5pt;
+    font-weight: 700; padding: 4mm 10mm; border-radius: 20mm;
+  }
+  .footer-cta .note { font-size: 9pt; color: #a6767f; margin-top: 5mm; }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="mini-hero">
+      <div class="eyebrow">Hanna From Japan</div>
+      <h1>Oiii, {{ customer_first_name }}! 🌸</h1>
+      <p>
+        Separei esse guia especialmente pra esse produto do seu pedido —
+        passo a passo, cuidados e tudo que você precisa saber. Bora aproveitar? 💕
+      </p>
+      <div class="order-line">Pedido #{{ order_number }} · {{ order_date }}</div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-header">
+        {% if image_url %}
+        <img src="{{ image_url }}" alt="{{ title }}">
+        {% else %}
+        <div class="product-thumb">🎁</div>
+        {% endif %}
+        <div class="info">
+          {% if vendor %}<div class="vendor">{{ vendor }}</div>{% endif %}
+          <h2>{{ title }}</h2>
+        </div>
+      </div>
+
+      {% if how_to_use %}
+      <div class="section howto">
+        <span class="tag">Como usar</span>
+        <p style="white-space: pre-line;">{{ how_to_use }}</p>
+      </div>
+      {% endif %}
+
+      {% if cautions %}
+      <div class="section caution">
+        <span class="tag">Cuidados</span>
+        <p style="white-space: pre-line;">{{ cautions }}</p>
+      </div>
+      {% endif %}
+
+      {% if ingredients_summary %}
+      <div class="section ingredients">
+        <span class="tag">Ingredientes principais</span>
+        <p style="white-space: pre-line;">{{ ingredients_summary }}</p>
+      </div>
+      {% endif %}
+
+      {% if product_info %}
+      <div class="section ingredients">
+        <span class="tag">Sobre o produto</span>
+        <p style="white-space: pre-line;">{{ product_info }}</p>
+      </div>
+      {% endif %}
+
+      {% if guarantee %}
+      <div class="section guarantee">
+        <span class="tag">Garantia</span>
+        <p style="white-space: pre-line;">{{ guarantee }}</p>
+      </div>
+      {% endif %}
+
+      {% if estimated_delivery %}
+      <div class="section delivery">
+        <span class="tag">Prazo de entrega</span>
+        <p>{{ estimated_delivery }}</p>
+      </div>
+      {% endif %}
+
+      {% if hanna_tip %}
+      <div class="section hanna-tip">
+        <span class="tag">Dica da Hanna</span>
+        <p>{{ hanna_tip }}</p>
+      </div>
+      {% endif %}
+
+      {% if infographic_url %}
+      <div class="infographic-slot">
+        <div class="infographic-label">Infográfico completo</div>
+        <img src="{{ infographic_url }}" alt="Infográfico do produto" class="infographic-img">
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="footer-cta">
+      <div class="whatsapp">💬 Manda um oi pra mim no WhatsApp</div>
+      <div class="note">Ficou com alguma dúvida ou usou e amou? Conta pra mim, quero saber! — hannafromjapan.com</div>
+      <div class="note" style="margin-top:3mm;">Psst... já fez seu FaceDNA? Descubra sua rotina ideal em hannafromjapan.com/facedna 🌸</div>
+    </div>
+  </div>
+</body>
+</html>
