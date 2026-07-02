@@ -43,7 +43,7 @@ TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "templates")
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 
 env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
-template = env.get_template("guide_template.html")
+template = env.get_template("guide_single_product.html")
 
 GRAPHQL_URL = f"https://{SHOPIFY_SHOP_DOMAIN}/admin/api/{SHOPIFY_API_VERSION}/graphql.json"
 TOKEN_URL = f"https://{SHOPIFY_SHOP_DOMAIN}/admin/oauth/access_token"
@@ -185,7 +185,8 @@ def resolve_file_reference_url(file_gid: str):
 # ---------------------------------------------------------------------------
 # Email sending (Resend — swap for SendGrid/Postmark if preferred)
 # ---------------------------------------------------------------------------
-def send_guide_email(to_email: str, customer_first_name: str, pdf_bytes: bytes, order_number: str):
+def send_guide_email(to_email: str, customer_first_name: str, attachments: list, order_number: str):
+    """attachments: list of dicts {"filename": str, "content_bytes": bytes}"""
     resp = requests.post(
         "https://api.resend.com/emails",
         headers={
@@ -195,22 +196,38 @@ def send_guide_email(to_email: str, customer_first_name: str, pdf_bytes: bytes, 
         json={
             "from": f"{FROM_NAME} <{FROM_EMAIL}>",
             "to": [to_email],
-            "subject": f"🌸 Seu guia Hanna From Japan — Pedido #{order_number}",
+            "subject": f"🌸 Seus guias Hanna From Japan — Pedido #{order_number}",
             "html": (
-                f"<p>Oiii, {customer_first_name}! Segue em anexo o guia dos "
-                f"produtos que você comprou. Beijo, Hanna 🌸</p>"
+                f"<p>Oiii, {customer_first_name}! Segue em anexo um guia para cada "
+                f"produto que você comprou — um PDF por item. Beijo, Hanna 🌸</p>"
             ),
             "attachments": [
                 {
-                    "filename": f"hanna-guia-pedido-{order_number}.pdf",
-                    "content": base64.b64encode(pdf_bytes).decode(),
+                    "filename": a["filename"],
+                    "content": base64.b64encode(a["content_bytes"]).decode(),
                 }
+                for a in attachments
             ],
         },
         timeout=30,
     )
     resp.raise_for_status()
     return resp.json()
+
+
+import re
+
+
+def slugify(text: str) -> str:
+    text = text.lower().strip()
+    text = re.sub(r"[àáâãäå]", "a", text)
+    text = re.sub(r"[èéêë]", "e", text)
+    text = re.sub(r"[ìíîï]", "i", text)
+    text = re.sub(r"[òóôõö]", "o", text)
+    text = re.sub(r"[ùúûü]", "u", text)
+    text = re.sub(r"[ç]", "c", text)
+    text = re.sub(r"[^a-z0-9]+", "-", text)
+    return text.strip("-")[:60] or "produto"
 
 
 # ---------------------------------------------------------------------------
@@ -255,25 +272,39 @@ def orders_create():
         logger.info("Order %s has no guide-eligible products, skipping", order_number)
         return {"status": "skipped_no_guide_data"}, 200
 
-    html_str = template.render(
-        customer_first_name=customer_first_name,
-        customer_email=customer_email,
-        order_number=order_number,
-        order_date=order_date,
-        products=products,
-        product_count=len(products),
-    )
-
-    pdf_bytes = HTML(string=html_str, base_url=STATIC_DIR).write_pdf()
+    attachments = []
+    for p in products:
+        html_str = template.render(
+            customer_first_name=customer_first_name,
+            order_number=order_number,
+            order_date=order_date,
+            title=p["title"],
+            vendor=p.get("vendor"),
+            image_url=p.get("image_url"),
+            how_to_use=p.get("how_to_use"),
+            cautions=p.get("cautions"),
+            ingredients_summary=p.get("ingredients_summary"),
+            product_info=p.get("product_info"),
+            guarantee=p.get("guarantee"),
+            estimated_delivery=p.get("estimated_delivery"),
+            hanna_tip=p.get("hanna_tip"),
+            infographic_url=p.get("infographic_url"),
+        )
+        pdf_bytes = HTML(string=html_str, base_url=STATIC_DIR).write_pdf()
+        filename = f"hanna-guia-{slugify(p['title'])}.pdf"
+        attachments.append({"filename": filename, "content_bytes": pdf_bytes})
 
     try:
-        send_guide_email(customer_email, customer_first_name, pdf_bytes, order_number)
+        send_guide_email(customer_email, customer_first_name, attachments, order_number)
     except Exception:
         logger.exception("Failed to send guide email for order %s", order_number)
         return {"status": "error_sending_email"}, 500
 
-    logger.info("Guide sent for order %s to %s", order_number, customer_email)
-    return {"status": "sent"}, 200
+    logger.info(
+        "Sent %s guide PDF(s) for order %s to %s",
+        len(attachments), order_number, customer_email,
+    )
+    return {"status": "sent", "pdf_count": len(attachments)}, 200
 
 
 @app.route("/health", methods=["GET"])
